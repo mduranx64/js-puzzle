@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<!--
+Miguel Duran 2016 
+mduranx64@gmail.com
+-->
+<html>
+    <head>
+        <title>Puzzle</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel='shortcut icon' type='image/x-icon' href='images/favicon.ico'/>
+        <style type="text/css">
+            .piece-cbr{
+                -webkit-mask: url(images/puzzle_coner-bottom-right.png);
+            }
+            .piece-bbt{
+                -webkit-mask: url(images/puzzle_border-bottom-two.png);
+            }
+            .piece-bbo{
+                -webkit-mask: url(images/puzzle_border-bottom-one.png);
+            }
+            .piece-cble{
+                -webkit-mask: url(images/puzzle_corner-bottom-left-even.png);
+            }
+            .piece-bro{
+                -webkit-mask: url(images/puzzle_border-right-one.png);
+            }
+            .piece-blt{
+                -webkit-mask: url(images/puzzle_border-left-two.png);
+            }
+            .piece-brt{
+                -webkit-mask: url(images/puzzle_border-right-two.png);
+            }
+            .piece-mh{
+                -webkit-mask: url(images/puzzle_middle-horizontal.png);
+            }
+            .piece-mv{
+                -webkit-mask: url(images/puzzle_middle-vertical.png);
+            }
+            .piece-blo{
+                -webkit-mask: url(images/puzzle_border-left-one.png);
+            }
+            .piece-ctr{
+                -webkit-mask: url(images/puzzle_corner-top-right.png);
+            }
+            .piece-bto{
+                -webkit-mask: url(images/puzzle_border-top-one.png);
+            }
+            .piece-btt{
+                -webkit-mask: url(images/puzzle_border-top-two.png);
+            }
+            .piece-ctl{
+                -webkit-mask: url(images/puzzle_corner-top-left.png);
+             }
+            .board{
+                border: 1px solid black;
+                margin: 0 auto;
+                width: 972px;
+                height: 648px;
+            }
+            .piece-h{
+                width: 174px;
+                height: 262px;
+                position: absolute;
+                display: inline-block;
+                -webkit-transform: translateX(-6px) translateY(-50px);
+                transform: translateX(-6px) translateY(-50px);
+            }
+            .piece-v{
+                width: 262px;
+                height: 174px;;
+                position: absolute;
+                display: inline-block;
+                -webkit-transform: translateX(-50px) translateY(-6px);
+                transform: translateX(-50px) translateY(-6px);
+            }
+            .board-piece{
+                background: lightblue;
+                width: 162px;
+                height: 162px;
+                float: left;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div id="pieces">
+            <div id="p1" class="piece-h piece-ctl" draggable="true"></div>
+            <div id="p2" class="piece-v piece-btt" draggable="true"></div>
+            <div id="p3" class="piece-h piece-bto" draggable="true"></div>
+            <div id="p4" class="piece-v piece-btt" draggable="true"></div>
+            <div id="p5" class="piece-h piece-bto" draggable="true"></div>
+            <div id="p6" class=" piece-v piece-ctr" draggable="true"></div>
+
+            <div id="p7" class="piece-v piece-blo" draggable="true"></div>
+            <div id="p8" class="piece-h piece-mv" draggable="true"></div>
+            <div id="p9" class="piece-v piece-mh" draggable="true"></div>
+            <div id="p10" class="piece-h piece-mv" draggable="true"></div>
+            <div id="p11" class="piece-v piece-mh" draggable="true"></div>
+            <div id="p12" class="piece-h piece-brt" draggable="true"></div>
+
+            <div id="p13" class="piece-h piece-blt" draggable="true"></div>
+            <div id="p14" class="piece-v piece-mh" draggable="true"></div> 
+            <div id="p15" class="piece-h piece-mv" draggable="true"></div>
+            <div id="p16" class="piece-v piece-mh" draggable="true"></div>
+            <div id="p17" class="piece-h piece-mv" draggable="true"></div>
+            <div id="p18" class="piece-v piece-bro" draggable="true"></div>
+
+            <div id="p19" class="piece-v piece-cble" draggable="true"></div>
+            <div id="p20" class="piece-h piece-bbo" draggable="true"></div>
+            <div id="p21" class="piece-v piece-bbt" draggable="true"></div>
+            <div id="p22" class="piece-h piece-bbo" draggable="true"></div>
+            <div id="p23" class="piece-v piece-bbt" draggable="true"></div>
+            <div id="p24" class="piece-h piece-cbr" draggable="true"></div>
+        </div>
+
+        <div class="board">
+        </div>
+        <div><input type="file" id="file"></div>
+        <script>
+            var pieces = document.querySelectorAll('#pieces div');
+            document.querySelector('#file').addEventListener('change', handleFile, false);
+
+            var pWidth = 174;
+            var pHeight = 262;
+            var pBase = 162;
+            var xSize = 4;
+            var ySize = 6;
+
+            var numPieces = xSize * ySize;
+            var board = document.querySelector('.board');
+            for (var i = 1; i <= numPieces; i++) {
+                var item = document.createElement('div');
+                item.id = 'b' + i;
+                item.className = 'board-piece';
+                board.appendChild(item);
+            }
+            var boardPieces = document.querySelectorAll('.board-piece');
+
+            function createPieces(file) {
+                var img = new Image();
+                img.onload = function () {};
+                img.src = URL.createObjectURL(file);
+
+                var offsetX = (pWidth - pBase) / 2;
+                var offsetY = (pHeight - pBase) / 2;
+                var pNum = 0;
+                var pX = 0;
+                var pY = 0;
+                var pYsum = 0;
+                var pFlag = true;
+                for (var x = 0; x < xSize; x++) {
+                    if (x === 0) {
+                        pYsum += offsetY;
+                        pX = offsetX;
+                    }
+                    if (x === 1 || x === 3) {
+                        pYsum += -pBase + offsetX - offsetY;
+                        pX = offsetY;
+                    }
+                    if (x === 2) {
+                        pYsum += -pBase - offsetX + offsetY;
+                        pX = offsetX;
+                    }
+                    pY = pYsum;
+                    for (var y = 0; y < ySize; y++) {
+
+                        if (pFlag) {
+                            if (y === 1 || y === 3 || y === 5) {
+                                pX += -pBase - offsetX + offsetY;
+                                pY += +offsetX - offsetY;
+                                if (y === 5) {
+                                    pFlag = false;
+                                }
+                            }
+                            if (y === 2 || y === 4) {
+                                pX += -pBase + offsetX - offsetY;
+                                pY += -offsetX + offsetY;
+                            }
+                        } else {
+                            if (y === 1 || y === 3 || y === 5) {
+                                pX += -pBase + offsetX - offsetY;
+                                pY += -offsetX + offsetY;
+                                if (y === 5) {
+                                    pFlag = true;
+                                }
+                            }
+                            if (y === 2) {
+                                pX += -pBase - offsetX + offsetY;
+                                pY += +offsetX - offsetY;
+                            }
+                            if (y === 4) {
+                                pX += -pBase - offsetX + offsetY;
+                                pY += +offsetX - offsetY;
+                            }
+                        }
+                        pieces[pNum].style.background = 'url(' + img.src + ') ' + pX + 'px ' + pY + 'px no-repeat';
+                        pNum++;
+                    }
+                }
+            }
+
+            function handleFile() {
+                files = this.files;
+                if (files.length > 0) {
+                    if (files[0].type.match('image.*')) {
+                        createPieces(files[0]);
+                    }
+                }
+            }
+
+            pieces.forEach(function (item) {
+                item.addEventListener('dragstart', dragStart, false);
+            });
+            boardPieces.forEach(function (item) {
+                item.addEventListener('drop', drop, false);
+                item.addEventListener('dragover', dragOver, false);
+
+            });
+            function dragStart(event) {
+                event.dataTransfer.setData('text', event.target.id);
+            }
+            function drop(event) {
+                event.preventDefault();
+                var data = event.dataTransfer.getData("text");
+
+                if (event.target.firstChild === null && event.target.className === 'board-piece') {
+                    event.target.appendChild(document.getElementById(data));
+                }
+            }
+            function dragOver(event) {
+                event.preventDefault();
+            }
+        </script>
+    </body>
+</html>
