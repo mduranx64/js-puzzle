@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <!--
 Miguel Duran 2016 
+Miguel Duran 2016
 mduranx64@gmail.com
 -->
 <html>
@@ -119,7 +120,9 @@ mduranx64@gmail.com
         <div><input type="file" id="file"></div>
         <script>
             var pieces = document.querySelectorAll('#pieces div');
-            document.querySelector('#file').addEventListener('change', handleFile, false);
+            document.querySelector('#file').addEventListener('change', function(event){
+                compress(event);
+            });
 
             var pWidth = 174;
             var pHeight = 262;
@@ -137,10 +140,7 @@ mduranx64@gmail.com
             }
             var boardPieces = document.querySelectorAll('.board-piece');
 
-            function createPieces(file) {
-                var img = new Image();
-                img.onload = function () {};
-                img.src = URL.createObjectURL(file);
+            function createPieces(img) {
 
                 var offsetX = (pWidth - pBase) / 2;
                 var offsetY = (pHeight - pBase) / 2;
@@ -200,12 +200,41 @@ mduranx64@gmail.com
                 }
             }
 
-            function handleFile() {
-                files = this.files;
-                if (files.length > 0) {
-                    if (files[0].type.match('image.*')) {
-                        createPieces(files[0]);
-                    }
+             // source - https://zocada.com/compress-resize-images-javascript-browser/
+            function compress(e) {
+
+                if ((e.target.files.length > 0) && e.target.files[0].type.match('image.*')) {
+
+                    const width = 972;
+                    const height = 648;
+                    const fileName = e.target.files[0].name;
+                    const reader = new FileReader();
+                    reader.readAsDataURL(e.target.files[0]);
+                    reader.onload = event => {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            const elem = document.createElement('canvas');
+                            elem.width = width;
+                            elem.height = height;
+                            const ctx = elem.getContext('2d');
+                            // img.width and img.height will contain the original dimensions
+                            ctx.drawImage(img, 0, 0, width, height);
+                            ctx.canvas.toBlob((blob) => {
+                                const file = new File([blob], fileName, {
+                                    type: 'image/jpeg',
+                                    lastModified: Date.now()
+                                });
+
+                                var resizedImage = new Image();
+                                resizedImage.onload = function () {};
+                                resizedImage.src = URL.createObjectURL(file);
+                                createPieces(resizedImage);
+
+                            }, 'image/jpeg', 1);
+                        },
+                        reader.onerror = error => console.log(error);
+                    };
                 }
             }
 
